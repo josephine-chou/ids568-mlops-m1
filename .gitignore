@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Training artifacts (temporary)
+train_model.py
+
+# Test results (optional - can be committed)
+# cloud_run_test_results.txt
+# cloud_function_test_results.txt
+
+# Sensitive (never commit)
+.env
+*.key
+*.pem
+
+# Large files
+*.pkl.gz
+models/*.pkl
+EOF

@@ -1,0 +1,128 @@
+=== MILESTONE 1: DEPLOYMENT COMPARISON ===
+Generated: 2026-02-03
+
+PART 1: CLOUD RUN DEPLOYMENT
+=============================
+Service URL: https://iris-classifier-l4gdvrm7uq-uc.a.run.app
+Container Image: us-central1-docker.pkg.dev/ids568-mlops/ml-models/iris-classifier:v1
+Runtime: Python 3.13 (FastAPI + Uvicorn)
+Memory: 512Mi
+Configuration: Stateful container, model loaded at startup
+
+Latency Results:
+- Cold Start: 0.300 seconds
+- Warm Request (1st): 0.361 seconds
+- Warm Request (2nd): 0.206 seconds
+- Average Warm: ~0.28 seconds
+
+PART 2: CLOUD FUNCTION GEN2 DEPLOYMENT
+=======================================
+Function URL: https://us-central1-ids568-mlops.cloudfunctions.net/iris-predict
+Runtime: Python 3.12 (functions-framework)
+Memory: 512MB
+Configuration: Stateless function, model cached in global variable
+
+Latency Results:
+- Cold Start: 7.589 seconds
+- Warm Request (1st): 0.399 seconds
+- Warm Request (2nd): 0.332 seconds
+- Average Warm: ~0.37 seconds
+
+PART 3: COMPARATIVE ANALYSIS
+=============================
+
+A. Lifecycle Differences:
+--------------------------
+Cloud Run (Container-based):
+- Deployment Unit: Docker image with complete environment
+- State Persistence: Full container state between requests
+- Model Loading: Once at container startup
+- Concurrency: Multiple requests per instance (configurable)
+- Scaling: Instances scale based on traffic
+
+Cloud Functions (Function-based):
+- Deployment Unit: Source code + requirements.txt
+- State Persistence: Global variables only (cached per instance)
+- Model Loading: First invocation per instance
+- Concurrency: 1 request per instance (Gen2 default)
+- Scaling: New instance per concurrent request
+
+B. Cold Start Analysis:
+-----------------------
+Cloud Run: 0.3s
+- Faster because container image is pre-built
+- Model is already in the image
+- Just needs to start container + uvicorn
+
+Cloud Function: 7.6s (25x slower!)
+- Must download function source
+- Install dependencies from requirements.txt
+- Load Python runtime
+- Import scikit-learn (heavy library)
+- Load model.pkl into memory
+
+Winner: Cloud Run (significantly faster cold starts)
+
+C. Warm Instance Performance:
+------------------------------
+Cloud Run: ~0.28s average
+Cloud Function: ~0.37s average
+
+Difference: Minimal (~0.09s)
+- Both keep model in memory
+- Both benefit from instance reuse
+- Cloud Run slightly faster due to persistent container state
+
+Winner: Cloud Run (marginally better)
+
+D. Reproducibility:
+-------------------
+Cloud Run:
++ Full environment control via Dockerfile
++ Exact Python version, system dependencies
++ Complete image snapshot
++ Can rebuild identical environment anytime
+- More complex deployment process
+
+Cloud Function:
++ Simple deployment (just code + requirements.txt)
++ Managed Python runtime
+- Less control over environment
+- Dependent on GCP's runtime updates
+
+Winner: Cloud Run (for production reproducibility)
+        Cloud Function (for development simplicity)
+
+E. Use Case Recommendations:
+-----------------------------
+Choose Cloud Run when:
+- Low latency is critical (<100ms SLA)
+- High traffic volume (cost-effective with reuse)
+- Large model (>100MB)
+- Need custom dependencies
+- Production deployment with strict reproducibility
+
+Choose Cloud Functions when:
+- Sporadic traffic (cost optimization)
+- Simple Python-only dependencies
+- Event-driven triggers (Pub/Sub, Storage)
+- Rapid prototyping
+- Microservices architecture
+
+PART 4: CONCLUSIONS
+===================
+For this Iris classification model (183KB):
+- Cloud Run is superior for production serving
+- Cold start advantage (25x faster) is decisive
+- Warm performance is comparable
+- Better reproducibility and control
+
+Cloud Functions is viable for:
+- Development/testing
+- Low-frequency prediction requests
+- Cost-sensitive scenarios with sporadic usage
+
+Key Insight: The massive cold start difference (0.3s vs 7.6s) makes
+Cloud Run the clear choice for any user-facing application with latency
+requirements. Cloud Functions' simplicity is valuable but comes at a
+significant performance cost.
