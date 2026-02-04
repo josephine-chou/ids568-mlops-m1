@@ -236,8 +236,4 @@ gcloud functions deploy iris-predict \
   - Cloud Functions Gen2
   - Artifact Registry
   - Cloud Build
-
-## Author
-
-**Josephine Chou** 
 ---
