@@ -1,6 +1,6 @@
 # Iris Classification ML Service
 
-![Build Status](https://github.com/josephine-chou/ids568-mlops-m1/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/josephine-chou/ids568-mlops-m1/actions/workflows/build.yml/badge.svg?branch=main)
 
 Containerized machine learning inference service for Iris flower classification using FastAPI and scikit-learn.
 
