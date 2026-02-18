@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+venv/
+env/
+.pytest_cache/
+.vscode/
+.idea/
+.git/
+.gitignore
+README.md
+RUNBOOK.md
+.github/
+.DS_Store
+Dockerfile
+docker-compose.yaml
+.dockerignore
